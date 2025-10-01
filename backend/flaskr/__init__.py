@@ -64,6 +64,9 @@ def create_app(test_config=None):
         books = Book.query.all()
         formatted_books = [book.format() for book in books]
 
+        if start >= (len(books) / BOOKS_PER_SHELF):
+            abort(404)
+
         return jsonify({
             'success': True,
             'books': formatted_books[start:end],
