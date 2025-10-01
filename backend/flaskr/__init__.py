@@ -81,7 +81,10 @@ def create_app(test_config=None):
 
     @app.route('/books/<int:book_id>', methods=['PATCH'])
     def update_book(book_id):
-        body = request.get_json()
+        try:
+            body = request.get_json()
+        except:
+            abort(400)
         try:
             book = Book.query.get(book_id)
             if book is None:
