@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 import json
 
 database_name = "bookshelf"
-database_path = "postgresql://{}:{}@{}/{}".format(
+database_path_default = "postgresql://{}:{}@{}/{}".format(
     "postgres", "Dev26776", "localhost:5432", database_name
 )
 
@@ -15,13 +15,26 @@ setup_db(app)
     binds a flask application and a SQLAlchemy service
 """
 
-
-def setup_db(app, database_path=database_path):
-    app.config["SQLALCHEMY_DATABASE_URI"] = database_path
+def setup_db(app, database_path=None):
+    # use database_path se fornecido, caso contrário usa o default
+    app.config["SQLALCHEMY_DATABASE_URI"] = database_path or database_path_default
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    db.app = app
+    # inicializa apenas uma vez por app
     db.init_app(app)
-    db.create_all()
+    # garantir que create_all rode dentro do contexto da app
+    with app.app_context():
+        db.create_all()
+
+
+# --> CORREÇOES PARA TESTES
+#----------------------------------------------------
+# def setup_db(app, database_path=database_path):
+#     app.config["SQLALCHEMY_DATABASE_URI"] = database_path
+#     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+#     db.app = app
+#     db.init_app(app)
+#     with app.app_context():
+#         db.create_all()
 
 
 """

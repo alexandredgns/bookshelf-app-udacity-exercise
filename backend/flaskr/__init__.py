@@ -19,14 +19,22 @@ def paginate_books(request, selection):
     start = (page - 1) * BOOKS_PER_SHELF
     end = start + BOOKS_PER_SHELF
 
-    books = [book.format() for book in books]
+    books = [book.format() for book in selection]
     current_books = books[start:end]
     return current_books
 
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__)
-    setup_db(app)
+#    setup_db(app)
+#    CORS(app)
+    # se for passado test_config com DATABASE_PATH, use-o; caso contrário usa o padrão
+    db_path = None
+    if test_config and 'DATABASE_PATH' in test_config:
+        db_path = test_config['DATABASE_PATH']
+
+    # configura o DB apenas uma vez usando o caminho apropriado
+    setup_db(app, db_path)
     CORS(app)
 
     # CORS Headers
@@ -57,7 +65,7 @@ def create_app(test_config=None):
         formatted_books = [book.format() for book in books]
 
         return jsonify({
-            'succes': True,
+            'success': True,
             'books': formatted_books[start:end],
             'total_books': len(formatted_books)
         })
